@@ -208,12 +208,16 @@ geom_logo <- function(data = NULL, method='bits', seq_type='auto', namespace=NUL
     colscale_opts = scale_fill_gradient(name=legend_title, low = low_col, 
                                         high = high_col, na.value = na_col)
   }else{
+     if (col_scheme == "position") {
+      colscale_opts = scale_fill_manual(values=position_colors$col, name="Fundamental Residues", na.value=na_col)    
+     }else{
     # Make group -> colour map
     tmp = cs[!duplicated(cs$group) & !is.na(cs$group),]
     col_map = unlist( split(tmp$col, tmp$group) )
     
     # Set colour scale options
-    colscale_opts = scale_fill_manual(values=col_map, name=legend_title, na.value=na_col)
+    colscale_opts = scale_fill_manual(values=col_map, name=legend_title, na.value=na_col)   
+    }
   } 
   
   # If letters and group are the same, don't draw legend
