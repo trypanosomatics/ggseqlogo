@@ -17,9 +17,15 @@ list_col_schemes <- function(v=T){
 # @param col_scheme name of color scheme
 # @param seq_type sequence type of color scheme
 get_col_scheme = function(col_scheme, seq_type='auto'){
-  #if (col_scheme == "position") {
-  #  return(NULL)
-  #  }
+  if (col_scheme == "position") {
+         position = data.frame(
+           letter = c('G', 'S', 'T', 'Y', 'C', 'N', 'Q', 'K', 'R', 'H', 'D', 'E', 'P', 'A', 'W', 'F', 'L', 'I', 'M', 'V'),
+           group = c(rep('Polar', 5), rep('Neutral', 2), rep('Basic', 3), rep('Acidic', 2), rep('Hydrophobic', 8)),
+           col = c(rep('#058644', 5), rep('#720091', 2), rep('#0046C5', 3), rep('#C5003E', 2), rep('#2E2E2E', 8)),
+           stringsAsFactors = F
+         )
+    return(cs)
+  }
   # Check if user-defined color scheme
   if(is.data.frame(col_scheme)){
     if(!'ggseqlogo_cs' %in% class(col_scheme)) 
@@ -50,12 +56,7 @@ get_col_scheme = function(col_scheme, seq_type='auto'){
            col = c(rep('#058644', 5), rep('#720091', 2), rep('#0046C5', 3), rep('#C5003E', 2), rep('#2E2E2E', 8)),
            stringsAsFactors = F
          ), 
-         position = data.frame(
-           letter = c('G', 'S', 'T', 'Y', 'C', 'N', 'Q', 'K', 'R', 'H', 'D', 'E', 'P', 'A', 'W', 'F', 'L', 'I', 'M', 'V'),
-           group = c(rep('Polar', 5), rep('Neutral', 2), rep('Basic', 3), rep('Acidic', 2), rep('Hydrophobic', 8)),
-           col = c(rep('#058644', 5), rep('#720091', 2), rep('#0046C5', 3), rep('#C5003E', 2), rep('#2E2E2E', 8)),
-           stringsAsFactors = F
-         ),
+    
          
          # Color scheme based on chemistry of amino acids
          chemistry = data.frame(
