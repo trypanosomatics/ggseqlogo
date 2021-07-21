@@ -5,11 +5,13 @@
 
 ggseqlogo is an R package for generating publication-ready sequence logos using ggplot2. 
 
+This is a FORK for logos with by-position color residues.
+
 ## Getting started
 First install `ggseqlogo` from github using the `devtools` package:
 
 ```r
-devtools::install_github("omarwagih/ggseqlogo")
+devtools::install_github("trypanosomatics/ggseqlogo")
 ```
 
 Load up the package and sample data
