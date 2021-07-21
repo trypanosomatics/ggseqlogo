@@ -149,12 +149,12 @@ theme_logo <- function(base_size=12, base_family=''){
 geom_logo <- function(data = NULL, method='bits', seq_type='auto', namespace=NULL,
                       font='roboto_medium', stack_width=0.95, rev_stack_order=F, col_scheme = 'auto',
                       low_col='black', high_col='yellow', na_col='grey20',
-                      plot=T, ...) {
+                      plot=T,position_colors=NULL, ...) {
   
   if(stack_width > 1 | stack_width <= 0) stop('"stack_width" must be between 0 and 1')
   if(is.null(data)) stop('Missing "data" parameter!')
   if(!is.null(namespace)) seq_type = 'other'
-  
+  if(is.null(position_colors)&col_scheme != "position") stop('Missing "Position Colors" parameter!')
   # Validate method
   all_methods = c('bits', 'probability','custom')#, 'tsl')
   pind = pmatch(method, all_methods)
@@ -192,7 +192,7 @@ geom_logo <- function(data = NULL, method='bits', seq_type='auto', namespace=NUL
   
   
   if (col_scheme == "position") {
-    data = cbind(data, cs)
+    data = cbind(data, position_colors)
     }else{
     data = merge(data, cs, by='letter', all.x=T)
   }
