@@ -18,7 +18,7 @@ list_col_schemes <- function(v=T){
 # @param seq_type sequence type of color scheme
 get_col_scheme = function(col_scheme, seq_type='auto'){
   if (col_scheme == "position") {
-         position = data.frame(
+         cs = data.frame(
            letter = c('G', 'S', 'T', 'Y', 'C', 'N', 'Q', 'K', 'R', 'H', 'D', 'E', 'P', 'A', 'W', 'F', 'L', 'I', 'M', 'V'),
            group = c(rep('Polar', 5), rep('Neutral', 2), rep('Basic', 3), rep('Acidic', 2), rep('Hydrophobic', 8)),
            col = c(rep('#058644', 5), rep('#720091', 2), rep('#0046C5', 3), rep('#C5003E', 2), rep('#2E2E2E', 8)),
