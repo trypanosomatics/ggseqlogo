@@ -16,7 +16,7 @@ list_col_schemes <- function(v=T){
 # Get color scheme
 # @param col_scheme name of color scheme
 # @param seq_type sequence type of color scheme
-get_col_scheme = function(col_scheme, seq_type='auto'){
+get_col_scheme <- function(col_scheme, seq_type='auto'){
   
   # Check if user-defined color scheme
   if(is.data.frame(col_scheme)){
