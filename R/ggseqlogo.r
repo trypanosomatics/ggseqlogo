@@ -190,8 +190,12 @@ geom_logo <- function(data = NULL, method='bits', seq_type='auto', namespace=NUL
   
   legend_title = attr(cs, 'cs_label')
   
-  data = merge(data, cs, by='letter', all.x=T)
   
+  if (col_scheme == "position") {
+    data = cbind(data, cs)
+    }else{
+    data = merge(data, cs, by='letter', all.x=T)
+  }
   # Make sure you retain order after merge
   data = data[order(data$order),]
   
