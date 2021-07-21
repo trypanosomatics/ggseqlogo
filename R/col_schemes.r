@@ -6,7 +6,7 @@
 list_col_schemes <- function(v=T){
   
   col_schemes = c('auto', 'chemistry', 'chemistry2','hydrophobicity', 'nucleotide', 'nucleotide2',
-             'base_pairing', 'clustalx', 'taylor','position')
+             'base_pairing', 'clustalx', 'taylor')
   if(!v) return(col_schemes)
   message('Available ggseqlogo color schemes:')
   for(f in col_schemes) message('\t', f)
