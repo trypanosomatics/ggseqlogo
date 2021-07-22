@@ -185,17 +185,11 @@ geom_logo <- function (data = NULL, method = "bits", seq_type = "auto", namespac
     cs = get_col_scheme(col_scheme, seq_type)
     legend_title = attr(cs, "cs_label")
     if (col_scheme == "position") {
-        print(data)
-        print("CS:")
-        print(position_colors)
         data = merge(data, position_colors, by = "position", 
             all.x = T)
-        print(data)
     }
     else {
-        print(cs)
         data = merge(data, cs, by = "letter", all.x = T)
-        print(data)
     }
     data = data[order(data$order), ]
     colscale_gradient = is.numeric(cs$group)
