@@ -192,7 +192,7 @@ geom_logo <- function(data = NULL, method='bits', seq_type='auto', namespace=NUL
   
   
   if (col_scheme == "position") {
-    data = cbind(data, position_colors)
+    data = cbind(data, t(position_colors))
     }else{
     data = merge(data, cs, by='letter', all.x=T)
   }
