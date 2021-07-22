@@ -195,8 +195,9 @@ geom_logo <- function (data = NULL, method = "bits", seq_type = "auto", namespac
     colscale_gradient = is.numeric(cs$group)
     colscale_opts = NULL
     if (col_scheme == "position") {
-        colscale_opts = scale_fill_manual(values = position_colors$position, 
-            name = "Fundamental Residues", na.value = na_col)
+        colscale_opts = scale_fill_manual(breaks = position_colors$group, 
+            values = position_colors$col, name = "Fundamental Residues", 
+            na.value = na_col)
     }
     else {
         if (colscale_gradient) {
