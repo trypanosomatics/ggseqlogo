@@ -146,125 +146,115 @@ theme_logo <- function(base_size=12, base_family=''){
 #' # Produce single sequence logo using geom_logo
 #' p1 = ggseqlogo( seqs_dna[[1]] ) 
 #' 
-geom_logo <- function(data = NULL, method='bits', seq_type='auto', namespace=NULL,
-                      font='roboto_medium', stack_width=0.95, rev_stack_order=F, col_scheme = 'auto',
-                      low_col='black', high_col='yellow', na_col='grey20',
-                      plot=T,position_colors=NULL, ...) {
-  
-  if(stack_width > 1 | stack_width <= 0) stop('"stack_width" must be between 0 and 1')
-  if(is.null(data)) stop('Missing "data" parameter!')
-  if(!is.null(namespace)) seq_type = 'other'
-  if(is.null(position_colors)&col_scheme != "position") stop('Missing "Position Colors" parameter!')
-  # Validate method
-  all_methods = c('bits', 'probability','custom')#, 'tsl')
-  pind = pmatch(method, all_methods)
-  method = all_methods[pind]
-  if(is.na(method)) stop("method must be one of 'bits' or 'probability', or 'custom'")
-  
-  # Convert character seqs to list
-  if(is.character(data) | is.matrix(data)) data = list("1"=data)
-  
-  if(is.list(data)){
-    # Set names for list if they dont exist
-    if(is.null(names(data))) names(data) = seq_along(data)
-    
-    lvls = names(data)
-    
-    # We have list of sequences - loop and rbind
-    data_sp = lapply(names(data), function(n){
-      curr_seqs = data[[n]]
-      logo_data(seqs = curr_seqs, method = method, stack_width = stack_width, 
-                rev_stack_order = rev_stack_order, seq_group = n, seq_type = seq_type, 
-                font = font, namespace=namespace)
-    })
-    data = do.call(rbind, data_sp)
-    # Set factor for order of facet
-    data$seq_group = factor(data$seq_group, levels = lvls)
-  }
-  
-  if(!plot) return(data)
-  
-  # Get sequence type
-  seq_type = attr(data, 'seq_type')
-  cs = get_col_scheme( col_scheme, seq_type )
-  
-  legend_title = attr(cs, 'cs_label')
-  
-  
-  if (col_scheme == "position") {
-    data = cbind(data, t(position_colors))
-    }else{
-    data = merge(data, cs, by='letter', all.x=T)
-  }
-  # Make sure you retain order after merge
-  data = data[order(data$order),]
-  
-  # Do we have a gradient colscale
-  colscale_gradient = is.numeric( cs$group )
-  
-  colscale_opts = NULL
-  if (col_scheme == "position") {
-    colscale_opts = scale_fill_manual(values=position_colors$col, name="Fundamental Residues", na.value=na_col)    
-    }else{
-      if(colscale_gradient){
-      # Set gradient colours 
-      colscale_opts = scale_fill_gradient(name=legend_title, low = low_col,high = high_col, na.value = na_col)
-    }else{
-      # Make group -> colour map
-      tmp = cs[!duplicated(cs$group) & !is.na(cs$group),]
-      col_map = unlist( split(tmp$col, tmp$group) )
-      # Set colour scale options
-      colscale_opts = scale_fill_manual(values=col_map, name=legend_title, na.value=na_col)
+geom_logo <- function (data = NULL, method = "bits", seq_type = "auto", namespace = NULL, 
+    font = "roboto_medium", stack_width = 0.95, rev_stack_order = F, 
+    col_scheme = "auto", low_col = "black", high_col = "yellow", 
+    na_col = "grey20", plot = T, position_colors = NULL, ...) 
+{
+    if (stack_width > 1 | stack_width <= 0) 
+        stop("\"stack_width\" must be between 0 and 1")
+    if (is.null(data)) 
+        stop("Missing \"data\" parameter!")
+    if (!is.null(namespace)) 
+        seq_type = "other"
+    if (is.null(position_colors) & col_scheme != "position") 
+        stop("Missing \"Position Colors\" parameter!")
+    all_methods = c("bits", "probability", "custom")
+    pind = pmatch(method, all_methods)
+    method = all_methods[pind]
+    if (is.na(method)) 
+        stop("method must be one of 'bits' or 'probability', or 'custom'")
+    if (is.character(data) | is.matrix(data)) 
+        data = list(`1` = data)
+    if (is.list(data)) {
+        if (is.null(names(data))) 
+            names(data) = seq_along(data)
+        lvls = names(data)
+        data_sp = lapply(names(data), function(n) {
+            curr_seqs = data[[n]]
+            logo_data(seqs = curr_seqs, method = method, stack_width = stack_width, 
+                rev_stack_order = rev_stack_order, seq_group = n, 
+                seq_type = seq_type, font = font, namespace = namespace)
+        })
+        data = do.call(rbind, data_sp)
+        data$seq_group = factor(data$seq_group, levels = lvls)
     }
-  } 
-  
-  # If letters and group are the same, don't draw legend
-  guides_opts = NULL
-  if(identical(cs$letter, cs$group)) guides_opts = guides(fill=F)
-  
-  y_lim = NULL
-  extra_opts = NULL
-  if(method == 'tsl'){
-    y_lab = 'Depleted    Enriched'
-    tmp = max(abs(data$y))
-    #y_lim = c(-tmp, tmp)
-    row_a = row_b = data[1,]
-    row_a$y = -tmp
-    row_b$y = tmp
-    data = rbind(data, row_a, row_b)
-    data$facet = factor(data$y > 0, c(T, F), c('Enriched', 'Depleted'))
-    extra_opts = NULL#facet_grid(facet~., scales='free')
-  }else if(method == 'custom'){
-    y_lab = ''
-  }else{
-    y_lab = method
-    substr(y_lab, 1, 1) = toupper(substr(y_lab, 1, 1))
-  }
-  
-  # Group data
-  data$group_by = with(data, interaction(seq_group, letter, position))
-  
-  data$x = data$x 
-  # Create layer
-  logo_layer = layer(
-    stat = 'identity', data = data, 
-    mapping = aes_string(x = 'x', y = 'y', fill='group', group='group_by'), 
-    geom = 'polygon', 
-    position = 'identity', show.legend = NA, inherit.aes = F,
-    params = list(na.rm = T, ...)
-  ) 
-  
-  
-  breaks_fun = function(lim){
-    # account for multiplicatuce expansion factor of 0.05
-    1: floor( lim[2] / 1.05 )
-  }
-  
-  # Expand 0.05 addidtive 
-  list(logo_layer, scale_x_continuous(breaks = breaks_fun, labels = identity), 
-       ylab(y_lab), xlab(''), colscale_opts, guides_opts, coord_cartesian(ylim=y_lim), 
-       extra_opts)
+    if (!plot) 
+        return(data)
+    seq_type = attr(data, "seq_type")
+    cs = get_col_scheme(col_scheme, seq_type)
+    legend_title = attr(cs, "cs_label")
+    if (col_scheme == "position") {
+        print(data)
+        print("CS:")
+        print(position_colors)
+        data = merge(data, position_colors, by = "position", 
+            all.x = T)
+        print(data)
+    }
+    else {
+        print(cs)
+        data = merge(data, cs, by = "letter", all.x = T)
+        print(data)
+    }
+    data = data[order(data$order), ]
+    colscale_gradient = is.numeric(cs$group)
+    colscale_opts = NULL
+    if (col_scheme == "position") {
+        colscale_opts = scale_fill_manual(values = position_colors$position, 
+            name = "Fundamental Residues", na.value = na_col)
+    }
+    else {
+        if (colscale_gradient) {
+            colscale_opts = scale_fill_gradient(name = legend_title, 
+                low = low_col, high = high_col, na.value = na_col)
+        }
+        else {
+            tmp = cs[!duplicated(cs$group) & !is.na(cs$group), 
+                ]
+            col_map = unlist(split(tmp$col, tmp$group))
+            colscale_opts = scale_fill_manual(values = col_map, 
+                name = legend_title, na.value = na_col)
+        }
+    }
+    guides_opts = NULL
+    if (identical(cs$letter, cs$group)) 
+        guides_opts = guides(fill = F)
+    y_lim = NULL
+    extra_opts = NULL
+    if (method == "tsl") {
+        y_lab = "Depleted    Enriched"
+        tmp = max(abs(data$y))
+        row_a = row_b = data[1, ]
+        row_a$y = -tmp
+        row_b$y = tmp
+        data = rbind(data, row_a, row_b)
+        data$facet = factor(data$y > 0, c(T, F), c("Enriched", 
+            "Depleted"))
+        extra_opts = NULL
+    }
+    else if (method == "custom") {
+        y_lab = ""
+    }
+    else {
+        y_lab = method
+        substr(y_lab, 1, 1) = toupper(substr(y_lab, 1, 1))
+    }
+    data$group_by = with(data, interaction(seq_group, letter, 
+        position))
+    data$x = data$x
+    logo_layer = layer(stat = "identity", data = data, mapping = aes_string(x = "x", 
+        y = "y", fill = "group", group = "group_by"), geom = "polygon", 
+        position = "identity", show.legend = NA, inherit.aes = F, 
+        params = list(na.rm = T, ...))
+    breaks_fun = function(lim) {
+        1:floor(lim[2]/1.05)
+    }
+    list(logo_layer, scale_x_continuous(breaks = breaks_fun, 
+        labels = identity), ylab(y_lab), xlab(""), colscale_opts, 
+        guides_opts, coord_cartesian(ylim = y_lim), extra_opts)
 }
+
 
 
 #' Quick sequence logo plot
